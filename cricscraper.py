@@ -1,4 +1,5 @@
 import time
+import datetime
 import pandas as pd
 import csv
 import os
@@ -10,6 +11,19 @@ from selenium.webdriver.chrome.options import Options
 from collections import OrderedDict
 from pprint import pprint
 
+
+def writetocsv(name, header, data):
+    filename = name + '.csv'
+
+    if not os.path.exists(filename):
+        with open(filename, 'w', newline='', encoding='utf-8') as f:
+            write = csv.writer(f)
+            write.writerow(header)
+            write.writerow(row)
+    else:
+        with open(filename, 'a', newline='', encoding='utf-8') as f:
+            write = csv.writer(f)
+            write.writerow(row)
 
 
 def writebattingcsv(header, data):
@@ -42,6 +56,7 @@ def writebowlingcsv(header, data):
             write.writerow(row)
 
 
+
 def writeumpirecsv(header, data):
     if not os.path.exists('umpire_data.csv'):
         with open('umpire_data.csv', 'w', newline='') as f:
@@ -55,6 +70,9 @@ def writeumpirecsv(header, data):
             write.writerow(row)
 
 
+present = datetime.datetime.now().strftime("%d/%m/%Y, %H:%M:%S")
+print(present)
+exit()
 options = Options()
 options.headless = True
 
@@ -69,6 +87,7 @@ urls = ['bangladesh-25/', 'bangladesh-25/alpha-a', 'bangladesh-25/alpha-b', 'ban
         'bangladesh-25/alpha-x', 'bangladesh-25/alpha-y', 'bangladesh-25/alpha-z']
 
 
+current_time = datetime.datetime.now().strftime("%d/%m/%Y, %H:%M:%S")
 initial_data = {}
 initial_list = []
 final_list = []
@@ -113,9 +132,7 @@ for url in urls:
             if (k == 'URL') and (v not in player_urls):
                 player_urls.append(v)
 
-driver.close()
 
-pprint(player_urls)
 
 # check and remove duplicate dict values and append to list
 for list in initial_list:
@@ -123,6 +140,7 @@ for list in initial_list:
         final_list.append(list)
 
 pprint(final_list, sort_dicts=False)
+
 
 try:
     columns = ['Name', 'Age', 'URL']
@@ -143,10 +161,13 @@ umpire_header = []
 umpire_data = []
 pickle_dict = dict()
 resume_list = []
+count = 0
 
+
+# while True:
 
 filename = "player_data.pkl"
-
+print(current_time)
 
 if not os.path.exists(filename):
     pickle_data = open(filename, 'wb')
@@ -165,10 +186,9 @@ else:
                 print(player_urls)
             else:
                 continue
-    print(pickle_dict)
 
 
-driver = webdriver.Chrome(executable_path='C:/Users/arman/chromedriver.exe', options=options)
+# driver = webdriver.Chrome(executable_path='C:/Users/arman/chromedriver.exe', options=options)
 
 
 for url in player_urls:
@@ -219,7 +239,7 @@ for url in player_urls:
             # batting_and_fielding.append('\n')
 
             writebattingcsv(batting_header, batting_and_fielding)
-
+            writetocsv(find_parent.text, batting_header, batting_and_fielding)
             pickle_dict[url]['Batting'] = 1
             pickle.dump(pickle_dict, pickle_data)
 
@@ -281,13 +301,27 @@ for url in player_urls:
             pickle_dict[url]['Umpire'] = 1
             pickle.dump(pickle_dict, pickle_data)
 
-
-    print(pickle_dict)
+    print(current_time)
+    # print(pickle_dict)
     # driver.close()
     # driver.quit()
+    """if count > 500:
+        prompt_usr = input("Do you want to stop the program?(Y/N) ")
 
-print(batting_header)
-print(batting_and_fielding)
+        try:
+            if prompt_usr == 'y' or prompt_usr == 'Y':
+                break
+
+            if prompt_usr == 'n' or prompt_usr == 'N':
+                continue
+        except NameError:
+            print("Invalid input detected. Continuing loop for another iteration.")
+            continue
+    else:"""
+
+
+    print(batting_header)
+    print(batting_and_fielding)
 # print(bowling_header)
 # print(bowling_data)
 # print(umpire_header)
